@@ -23,7 +23,6 @@ chrome.runtime.onMessage.addListener((msg) => {
 
     // Clear extra arrows after settings change
     for (let rank = parseInt(settings.maxLines, 10) + 1; rank <= 5; rank++) {
-      console.log("Clearing", rank);
       clearArrow(rank);
     }
   }
