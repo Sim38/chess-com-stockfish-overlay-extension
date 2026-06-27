@@ -1,0 +1,100 @@
+<html>
+  <body>
+    <script src="popup.js"></script>
+
+    <div class="settings-panel">
+      <h2 class="settings-title">StockExt Settings</h2>
+
+      <div class="settings-list">
+        <div class="setting">
+          <label class="setting-label" for="maxDepth">Max Depth</label>
+          <input id="maxDepth" type="number" />
+        </div>
+      </div>
+
+      <div class="action-container">
+        <button id="resetButton" class="btn btn-reset">Reset</button>
+        <button id="applyButton" class="btn btn-apply">Apply</button>
+      </div>
+    </div>
+
+    <style>
+      .settings-panel {
+        width: 260px;
+        font-family: Arial, sans-serif;
+        padding: 0.5rem;
+      }
+
+      .settings-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 12px 0;
+        padding-bottom: 8px;
+        color: #1f1f1f;
+        border-bottom: 1px solid #e6e6e6;
+        letter-spacing: 0.2px;
+      }
+
+      .settings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .setting {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .setting-label {
+        font-size: 14px;
+      }
+
+      .setting input {
+        width: 80px;
+        padding: 4px;
+      }
+
+      .action-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: Arial, sans-serif;
+        flex-grow: 1;
+      }
+
+      /* Reset button (neutral/secondary) */
+      .btn-reset {
+        background: #f3f3f3;
+        border-color: #d0d0d0;
+        color: #333;
+      }
+
+      .btn-reset:hover {
+        background: #e9e9e9;
+      }
+
+      /* Apply button (primary action) */
+      .btn-apply {
+        background: #1a73e8;
+        color: white;
+      }
+
+      .btn-apply:hover {
+        background: #1669d6;
+      }
+    </style>
+  </body>
+</html>

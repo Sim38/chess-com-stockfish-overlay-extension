@@ -1,19 +1,7 @@
-const refreshRateMS = 200;
-
 let globalMoves = "";
+let gameObserverIntervalId = null;
 
-setInterval(() => {
-  const uciHistory = getUciHistory();
-  const moves = uciHistory.join(" ");
-
-  if (moves !== globalMoves) {
-    console.log("New Move Spotted", moves);
-    clearArrows();
-    globalMoves = moves;
-
-    chrome.runtime.sendMessage({ type: "ANALYZE", uci: moves });
-  }
-}, 1000);
+waitForBoardHistory(startBoardHistoryObserver);
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "BESTMOVE") {
@@ -22,6 +10,51 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
 });
 
+function waitForBoardHistory(callback) {
+  const boardHistory = document.getElementById("scroll-container");
+
+  if (boardHistory) {
+    callback();
+    return;
+  }
+
+  const observer = new MutationObserver(() => {
+    const boardHistory = document.getElementById("scroll-container");
+
+    if (boardHistory) {
+      observer.disconnect();
+      callback();
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}
+
+function startBoardHistoryObserver() {
+  const boardHistory = document.getElementById("scroll-container");
+
+  const boardHistoryObserver = new MutationObserver((mutations) => {
+    console.log("\nBoard history changed");
+    const uciHistory = getUciHistory();
+    const moves = uciHistory.join(" ");
+
+    if (moves !== globalMoves) {
+      console.log("New Move Spotted", moves);
+      clearArrows();
+      globalMoves = moves;
+
+      chrome.runtime.sendMessage({ type: "ANALYZE", uci: moves });
+    }
+  });
+
+  boardHistoryObserver.observe(boardHistory, {
+    childList: true,
+    subtree: true,
+  });
+}
 function getUciHistory() {
   const chess = new Chess();
 
@@ -45,7 +78,6 @@ function getUciHistory() {
 
 function showBestMoves(moves) {
   const coords = moveToCoords(moves.move);
-  console.log(coords);
   drawArrows(coords.from, coords.to, moves.rank);
 }
 
@@ -93,12 +125,20 @@ function adjustToCoordinates(from, to, shrinkAmount) {
 
 function drawArrows(from, to, rank) {
   const colors = ["rgb(0, 200, 120)", "rgb(255, 170, 0)", "rgb(255, 80, 80)"];
+  const arrowId = `rank${rank}Arrow`;
 
   const svg = document
     .querySelector("wc-chess-board")
     .querySelector("svg.arrows");
   const NS = "http://www.w3.org/2000/svg";
+
+  const existingArrow = svg.getElementById(arrowId);
+  if (existingArrow) {
+    existingArrow.remove();
+  }
+
   const line = document.createElementNS(NS, "line");
+  line.id = arrowId;
 
   const adjustedTo = adjustToCoordinates(from, to, 7);
 

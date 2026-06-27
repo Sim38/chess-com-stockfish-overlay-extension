@@ -1,16 +1,18 @@
 console.log("running offscreen");
 
 const stockfish = new Worker("/engines/stockfish-18-lite/stockfish-18-lite.js");
-const maxDepth = 15;
+let maxDepth = 15;
+let multiplePV = 3;
+let latestMove = "";
 
 stockfish.postMessage("uci");
-stockfish.postMessage("setoption name MultiPV value 3");
+stockfish.postMessage(`setoption name MultiPV value ${multiplePV}`);
 stockfish.postMessage("position startpos");
 stockfish.postMessage(`go depth ${maxDepth}`);
 
 stockfish.onmessage = (event) => {
   const line = event.data;
-  // console.log("Stockfish:", line);
+  console.log("Stockfish:", line);
 
   if (isMaxDepthInfoLine(line)) {
     const moveData = parsePV(line);
@@ -31,7 +33,17 @@ stockfish.onmessage = (event) => {
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "OFFSCREEN_ANALYZE") {
     console.log("Analyze request:", msg);
-    updateStockfish(msg.uci);
+
+    latestMove = msg.uci;
+    updateStockfish();
+  } else if (msg.type === "UPDATE_SETTINGS") {
+    console.log("Update Settings", msg.data);
+
+    const newSettings = msg.data;
+    if (newSettings.maxDepth != maxDepth) {
+      maxDepth = newSettings.maxDepth;
+      updateStockfish();
+    }
   }
 });
 
@@ -57,8 +69,8 @@ function parsePV(data) {
   }
 }
 
-function updateStockfish(move) {
+function updateStockfish() {
   stockfish.postMessage("stop");
-  stockfish.postMessage("position startpos moves " + move);
+  stockfish.postMessage("position startpos moves " + latestMove);
   stockfish.postMessage(`go depth ${maxDepth}`);
 }

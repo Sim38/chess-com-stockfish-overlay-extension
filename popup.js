@@ -1,58 +1,43 @@
-const stockfish = new Worker("/engines/stockfish-18-lite/stockfish-18-lite.js");
-const maxDepth = 15;
-
-stockfish.postMessage("uci");
-stockfish.postMessage("setoption name MultiPV value 3");
-stockfish.postMessage("position startpos");
-stockfish.postMessage(`go depth ${maxDepth}`);
-
-stockfish.onmessage = (event) => {
-  const line = event.data;
-  //   console.log("Stockfish:", line);
-
-  if (
-    line.startsWith("info") &&
-    line.includes("multipv") &&
-    line.includes(`depth ${maxDepth}`)
-  ) {
-    const moveData = parsePV(line);
-    if (moveData) {
-      console.log(`Best Move [${moveData[0]}]: ${moveData[1]}`);
-
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: "BESTMOVE",
-          data: {
-            rank: moveData[0],
-            move: moveData[1],
-          },
-        });
-      });
-    }
-  }
+const defaultSettings = {
+  maxDepth: 15,
 };
 
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === "ANALYZE") {
-    console.log("Analyze request:", msg);
-    updateStockfish(msg.uci);
-  }
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize Settings
+  chrome.storage.local.get("settings", (data) => {
+    const settings = data.settings || defaultSettings;
+    document.getElementById("maxDepth").value = settings.maxDepth;
+  });
+
+  // Initialize Button Clicks
+  const resetButton = document.getElementById("resetButton");
+  resetButton.addEventListener("click", resetSettings);
+
+  const applyButton = document.getElementById("applyButton");
+  applyButton.addEventListener("click", updateSettings);
 });
 
-function parsePV(data) {
-  const multipvMatch = data.match(/multipv (\d+)/);
-  const pvMatch = data.match(/\bpv\b ([^\s]+)/);
+function resetSettings() {
+  const maxDepthInput = document.getElementById("maxDepth");
+  maxDepthInput.value = defaultSettings.maxDepth;
 
-  if (multipvMatch && pvMatch) {
-    const moveRank = multipvMatch[1];
-    const move = pvMatch[1];
-
-    return [moveRank, move];
-  }
+  chrome.storage.local.set({ settings: defaultSettings });
+  chrome.runtime.sendMessage({
+    type: "UPDATE_SETTINGS",
+    data: defaultSettings,
+  });
 }
 
-function updateStockfish(move) {
-  stockfish.postMessage("stop");
-  stockfish.postMessage("position startpos moves " + move);
-  stockfish.postMessage(`go depth ${maxDepth}`);
+function updateSettings() {
+  const maxDepthInput = document.getElementById("maxDepth");
+
+  const settings = {
+    maxDepth: maxDepthInput.value,
+  };
+
+  chrome.storage.local.set({ settings });
+  chrome.runtime.sendMessage({
+    type: "UPDATE_SETTINGS",
+    data: settings,
+  });
 }
