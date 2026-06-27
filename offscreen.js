@@ -40,8 +40,13 @@ chrome.runtime.onMessage.addListener((msg) => {
     console.log("Update Settings", msg.data);
 
     const newSettings = msg.data;
-    if (newSettings.maxDepth != maxDepth) {
+    const isChanged =
+      newSettings.maxDepth != maxDepth || newSettings.maxLines != multiplePV;
+
+    if (isChanged) {
       maxDepth = newSettings.maxDepth;
+      multiplePV = newSettings.maxLines;
+
       updateStockfish();
     }
   }
@@ -71,6 +76,7 @@ function parsePV(data) {
 
 function updateStockfish() {
   stockfish.postMessage("stop");
+  stockfish.postMessage(`setoption name MultiPV value ${multiplePV}`);
   stockfish.postMessage("position startpos moves " + latestMove);
   stockfish.postMessage(`go depth ${maxDepth}`);
 }

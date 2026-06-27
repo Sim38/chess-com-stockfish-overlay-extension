@@ -124,7 +124,14 @@ function adjustToCoordinates(from, to, shrinkAmount) {
 }
 
 function drawArrows(from, to, rank) {
-  const colors = ["rgb(0, 200, 120)", "rgb(255, 170, 0)", "rgb(255, 80, 80)"];
+  // const colors = ["rgb(0, 200, 120)", "rgb(255, 170, 0)", "rgb(255, 80, 80)"];
+  const colors = [
+    "rgb(0, 200, 120)", // Best move (strong green)
+    "rgb(120, 210, 90)", // Good (lighter green)
+    "rgb(255, 200, 0)", // Slightly worse (yellow)
+    "rgb(255, 140, 0)", // Bad (orange)
+    "rgb(255, 70, 70)", // Worst (red)
+  ];
   const arrowId = `rank${rank}Arrow`;
 
   const svg = document
