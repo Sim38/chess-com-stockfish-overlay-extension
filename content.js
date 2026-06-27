@@ -59,7 +59,7 @@ function startBoardHistoryObserver() {
     const uciHistory = getUciHistory();
     const moves = uciHistory.join(" ");
 
-    if (settings.isEnabled && moves !== globalMoves) {
+    if (moves !== globalMoves) {
       console.log("New Move Spotted", moves);
       clearArrows();
       globalMoves = moves;
