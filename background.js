@@ -38,11 +38,13 @@ function analyze(msg) {
 }
 
 function bestMove(msg) {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, {
-      type: "BESTMOVE",
-      data: msg.data,
-    });
+  chrome.tabs.query({ url: "*://*.chess.com/*" }, (tabs) => {
+    for (const tab of tabs) {
+      chrome.tabs.sendMessage(tab.id, {
+        type: "BESTMOVE",
+        data: msg.data,
+      });
+    }
   });
 }
 

@@ -4,7 +4,7 @@
   "version": "1.0",
   "manifest_version": 3,
 
-  "permissions": ["scripting", "activeTab", "offscreen", "storage"],
+  "permissions": ["scripting", "offscreen", "storage", "tabs"],
   "web_accessible_resources": [
     {
       "resources": [
