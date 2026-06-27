@@ -31,6 +31,11 @@ function resetSettings() {
 function updateSettings() {
   const maxDepthInput = document.getElementById("maxDepth");
 
+  // Validate if lesser than 0
+  if (maxDepthInput.value <= 0) {
+    maxDepthInput.value = 1;
+  }
+
   const settings = {
     maxDepth: maxDepthInput.value,
   };
