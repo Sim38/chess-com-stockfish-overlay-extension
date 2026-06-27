@@ -10,13 +10,9 @@ stockfish.postMessage(`go depth ${maxDepth}`);
 
 stockfish.onmessage = (event) => {
   const line = event.data;
-  console.log("Stockfish:", line);
+  // console.log("Stockfish:", line);
 
-  if (
-    line.startsWith("info") &&
-    line.includes("multipv") &&
-    line.includes(`depth ${maxDepth}`)
-  ) {
+  if (isMaxDepthInfoLine(line)) {
     const moveData = parsePV(line);
     if (moveData) {
       console.log(`Best Move [${moveData[0]}]: ${moveData[1]}`);
@@ -38,6 +34,16 @@ chrome.runtime.onMessage.addListener((msg) => {
     updateStockfish(msg.uci);
   }
 });
+
+function isMaxDepthInfoLine(line) {
+  const maxDepthRegex = new RegExp(`\\bdepth ${maxDepth}\\b`);
+
+  return (
+    line.startsWith("info") &&
+    line.includes("multipv") &&
+    maxDepthRegex.test(line) // Check for "depth x"
+  );
+}
 
 function parsePV(data) {
   const multipvMatch = data.match(/multipv (\d+)/);
