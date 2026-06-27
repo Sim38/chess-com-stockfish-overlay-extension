@@ -11,7 +11,7 @@
         "engines/stockfish-18-lite/stockfish-18-lite.js",
         "engines/stockfish-18-lite/*"
       ],
-      "matches": ["<all_urls>"]
+      "matches": ["https://*.chess.com/*"]
     }
   ],
 
@@ -26,7 +26,7 @@
 
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["https://*.chess.com/*"],
       "js": ["chess.js", "content.js"]
     }
   ],
