@@ -7,6 +7,10 @@ async function createOffscreen() {
     reasons: ["WORKERS"],
     justification: "Run Stockfish engine",
   });
+
+  chrome.storage.local.get("settings", (data) => {
+    updateSettings(data.settings);
+  });
 }
 
 const messageHandlers = {
@@ -46,12 +50,5 @@ function updateSettings(msg) {
   chrome.runtime.sendMessage({
     type: "OFFSCREEN_UPDATE_SETTINGS",
     data: msg.data,
-  });
-
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, {
-      type: "UPDATE_SETTINGS",
-      data: msg.data,
-    });
   });
 }
