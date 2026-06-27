@@ -1,4 +1,4 @@
-const refreshRateMS = 1000;
+const refreshRateMS = 200;
 
 let globalMoves = "";
 
