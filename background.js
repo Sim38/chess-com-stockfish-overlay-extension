@@ -1,3 +1,5 @@
+const TAG = "background.js";
+
 createOffscreen();
 async function createOffscreen() {
   if (await chrome.offscreen.hasDocument()) return;
@@ -9,7 +11,7 @@ async function createOffscreen() {
   });
 
   chrome.storage.local.get("settings", (data) => {
-    updateSettings(data.settings);
+    updateSettings({ data: data.settings });
   });
 }
 
@@ -20,13 +22,12 @@ const messageHandlers = {
 };
 
 chrome.runtime.onMessage.addListener((msg) => {
-  console.log("Received", msg);
-
+  console.log(`[${TAG}] Received Message:`, msg);
   const handler = messageHandlers[msg.type];
   if (handler) {
     handler(msg);
   } else {
-    console.log(`Handler for ${msg.type} does not exist!`);
+    console.log(`[${TAG}] Handler for ${msg.type} does not exist!`);
   }
 });
 
@@ -38,6 +39,7 @@ function analyze(msg) {
 }
 
 function bestMove(msg) {
+  // Send data to content.js
   chrome.tabs.query({ url: "*://*.chess.com/*" }, (tabs) => {
     for (const tab of tabs) {
       chrome.tabs.sendMessage(tab.id, {
@@ -52,5 +54,15 @@ function updateSettings(msg) {
   chrome.runtime.sendMessage({
     type: "OFFSCREEN_UPDATE_SETTINGS",
     data: msg.data,
+  });
+
+  // Send data to content.js
+  chrome.tabs.query({ url: "*://*.chess.com/*" }, (tabs) => {
+    for (const tab of tabs) {
+      chrome.tabs.sendMessage(tab.id, {
+        type: "UPDATE_SETTINGS",
+        data: msg.data,
+      });
+    }
   });
 }

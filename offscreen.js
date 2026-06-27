@@ -1,8 +1,11 @@
-console.log("running offscreen");
+const TAG = "offscreen.js";
+
+console.log(`[${TAG}]running offscreen`);
 
 const stockfish = new Worker("/engines/stockfish-18-lite/stockfish-18-lite.js");
 let maxDepth = 15;
 let multiplePV = 3;
+let isEnabled = true;
 let latestMove = "";
 
 stockfish.postMessage("uci");
@@ -12,12 +15,12 @@ stockfish.postMessage(`go depth ${maxDepth}`);
 
 stockfish.onmessage = (event) => {
   const line = event.data;
-  console.log("Stockfish:", line);
+  console.log(`[${TAG}] Stockfish:`, line);
 
   if (isMaxDepthInfoLine(line)) {
     const moveData = parsePV(line);
     if (moveData) {
-      console.log(`Best Move [${moveData[0]}]: ${moveData[1]}`);
+      console.log(`[${TAG}] Best Move [${moveData[0]}]: ${moveData[1]}`);
 
       chrome.runtime.sendMessage({
         type: "BESTMOVE",
@@ -31,21 +34,22 @@ stockfish.onmessage = (event) => {
 };
 
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === "OFFSCREEN_ANALYZE") {
-    console.log("Analyze request:", msg);
+  console.log(`[${TAG}] Received Message:`, msg);
 
+  if (msg.type === "OFFSCREEN_ANALYZE") {
     latestMove = msg.uci;
     updateStockfish();
-  } else if (msg.type === "UPDATE_SETTINGS") {
-    console.log("Update Settings", msg.data);
-
+  } else if (msg.type === "OFFSCREEN_UPDATE_SETTINGS") {
     const newSettings = msg.data;
     const isChanged =
-      newSettings.maxDepth != maxDepth || newSettings.maxLines != multiplePV;
+      newSettings.maxDepth != maxDepth ||
+      newSettings.maxLines != multiplePV ||
+      newSettings.isEnabled != isEnabled;
 
     if (isChanged) {
       maxDepth = newSettings.maxDepth;
       multiplePV = newSettings.maxLines;
+      isEnabled = newSettings.isEnabled;
 
       updateStockfish();
     }
@@ -75,6 +79,8 @@ function parsePV(data) {
 }
 
 function updateStockfish() {
+  if (!isEnabled) return;
+
   stockfish.postMessage("stop");
   stockfish.postMessage(`setoption name MultiPV value ${multiplePV}`);
   stockfish.postMessage("position startpos moves " + latestMove);

@@ -1,12 +1,25 @@
 let globalMoves = "";
 let gameObserverIntervalId = null;
 
+let settings = {};
+
+chrome.storage.local.get("settings", (data) => {
+  settings = data.settings;
+});
+
 waitForBoardHistory(startBoardHistoryObserver);
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "BESTMOVE") {
     console.log("Engine says:", msg.data);
     showBestMoves(msg.data);
+  } else if (msg.type === "UPDATE_SETTINGS") {
+    const newSettings = msg.data;
+    settings = newSettings;
+
+    if (!settings.isEnabled) {
+      clearArrows();
+    }
   }
 });
 
@@ -41,7 +54,7 @@ function startBoardHistoryObserver() {
     const uciHistory = getUciHistory();
     const moves = uciHistory.join(" ");
 
-    if (moves !== globalMoves) {
+    if (settings.isEnabled && moves !== globalMoves) {
       console.log("New Move Spotted", moves);
       clearArrows();
       globalMoves = moves;
@@ -193,4 +206,16 @@ function clearArrows() {
     .querySelector("wc-chess-board")
     .querySelector("svg.arrows");
   svg.querySelectorAll("line").forEach((el) => el.remove());
+}
+
+function clearArrow(rank) {
+  const arrowId = `rank${rank}Arrow`;
+  const svg = document
+    .querySelector("wc-chess-board")
+    .querySelector("svg.arrows");
+
+  const existingArrow = svg.getElementById(arrowId);
+  if (existingArrow) {
+    existingArrow.remove();
+  }
 }

@@ -1,4 +1,5 @@
 const defaultSettings = {
+  isEnabled: true,
   maxDepth: 15,
   maxLines: 3,
 };
@@ -7,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize Settings
   chrome.storage.local.get("settings", (data) => {
     const settings = data.settings || defaultSettings;
+    document.getElementById("analysisToggle").checked = settings.isEnabled;
     document.getElementById("maxDepth").value = settings.maxDepth;
     document.getElementById("maxLines").value = settings.maxLines;
   });
@@ -20,11 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function resetSettings() {
-  const maxDepthInput = document.getElementById("maxDepth");
-  maxDepthInput.value = defaultSettings.maxDepth;
-
-  const maxLinesInput = document.getElementById("maxLines");
-  maxLinesInput.value = defaultSettings.maxLines;
+  document.getElementById("analysisToggle").checked = defaultSettings.isEnabled;
+  document.getElementById("maxDepth").value = defaultSettings.maxDepth;
+  document.getElementById("maxLines").value = defaultSettings.maxLines;
 
   chrome.storage.local.set({ settings: defaultSettings });
   chrome.runtime.sendMessage({
@@ -36,6 +36,7 @@ function resetSettings() {
 function updateSettings() {
   const maxDepthInput = document.getElementById("maxDepth");
   const maxLinesInput = document.getElementById("maxLines");
+  const analysisToggle = document.getElementById("analysisToggle");
 
   // Validate maxDepth Input
   if (maxDepthInput.value <= 0) {
@@ -52,6 +53,7 @@ function updateSettings() {
   const settings = {
     maxDepth: maxDepthInput.value,
     maxLines: maxLinesInput.value,
+    isEnabled: analysisToggle.checked,
   };
 
   chrome.storage.local.set({ settings });
