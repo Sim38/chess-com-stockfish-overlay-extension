@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((msg) => {
 });
 
 function waitForBoardHistory(callback) {
-  const boardHistory = document.getElementById("scroll-container");
+  const boardHistory = document.querySelector("wc-simple-move-list");
 
   if (boardHistory) {
     callback();
@@ -37,7 +37,7 @@ function waitForBoardHistory(callback) {
   }
 
   const observer = new MutationObserver(() => {
-    const boardHistory = document.getElementById("scroll-container");
+    const boardHistory = document.querySelector("wc-simple-move-list");
 
     if (boardHistory) {
       observer.disconnect();
@@ -52,7 +52,7 @@ function waitForBoardHistory(callback) {
 }
 
 function startBoardHistoryObserver() {
-  const boardHistory = document.getElementById("scroll-container");
+  const boardHistory = document.querySelector("wc-simple-move-list");
 
   const boardHistoryObserver = new MutationObserver((mutations) => {
     console.log("\nBoard history changed");
