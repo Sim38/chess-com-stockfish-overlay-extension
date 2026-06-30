@@ -55,6 +55,13 @@ function startBoardHistoryObserver() {
   const boardHistory = document.querySelector("wc-simple-move-list");
 
   const boardHistoryObserver = new MutationObserver((mutations) => {
+    // Check if Board Element is destroyed (New Game)
+    if (!boardHistory.isConnected) {
+      boardHistoryObserver.disconnect();
+      waitForBoardHistory(startBoardHistoryObserver);
+      return;
+    }
+
     console.log("\nBoard history changed");
     const fenHistory = getFenHistory();
 
