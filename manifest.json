@@ -1,8 +1,11 @@
 {
-  "name": "Stockfish Extension",
+  "name": "Coldplay",
   "description": "Stockfish Extension for Chess.com",
   "version": "1.0",
   "manifest_version": 3,
+  "icons": {
+    "128": "assets/coldplay-icon-128.png"
+  },
 
   "permissions": ["scripting", "offscreen", "storage", "tabs"],
   "web_accessible_resources": [
@@ -17,7 +20,7 @@
 
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "assets/stockfish.png"
+    "default_icon": "assets/coldplay-icon-128.png"
   },
 
   "background": {
