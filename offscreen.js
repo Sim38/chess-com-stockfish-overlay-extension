@@ -8,7 +8,7 @@ let multiplePV = 3;
 let isEnabled = true;
 let latestMove = "";
 
-stockfish.postMessage("uci");
+stockfish.postMessage("fen");
 stockfish.postMessage(`setoption name MultiPV value ${multiplePV}`);
 stockfish.postMessage("position startpos");
 stockfish.postMessage(`go depth ${maxDepth}`);
@@ -37,7 +37,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   console.log(`[${TAG}] Received Message:`, msg);
 
   if (msg.type === "OFFSCREEN_ANALYZE") {
-    latestMove = msg.uci;
+    latestMove = msg.fen;
     updateStockfish();
   } else if (msg.type === "OFFSCREEN_UPDATE_SETTINGS") {
     const newSettings = msg.data;
@@ -83,6 +83,6 @@ function updateStockfish() {
 
   stockfish.postMessage("stop");
   stockfish.postMessage(`setoption name MultiPV value ${multiplePV}`);
-  stockfish.postMessage("position startpos moves " + latestMove);
+  stockfish.postMessage("position fen " + latestMove);
   stockfish.postMessage(`go depth ${maxDepth}`);
 }

@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener((msg) => {
 function analyze(msg) {
   chrome.runtime.sendMessage({
     type: "OFFSCREEN_ANALYZE",
-    uci: msg.uci,
+    fen: msg.fen,
   });
 }
 

@@ -56,15 +56,14 @@ function startBoardHistoryObserver() {
 
   const boardHistoryObserver = new MutationObserver((mutations) => {
     console.log("\nBoard history changed");
-    const uciHistory = getUciHistory();
-    const moves = uciHistory.join(" ");
+    const fenHistory = getFenHistory();
 
-    if (moves !== globalMoves) {
-      console.log("New Move Spotted", moves);
+    if (fenHistory !== globalMoves) {
+      console.log("New Move Spotted", fenHistory);
       clearArrows();
-      globalMoves = moves;
+      globalMoves = fenHistory;
 
-      chrome.runtime.sendMessage({ type: "ANALYZE", uci: moves });
+      chrome.runtime.sendMessage({ type: "ANALYZE", fen: fenHistory });
     }
   });
 
@@ -73,7 +72,7 @@ function startBoardHistoryObserver() {
     subtree: true,
   });
 }
-function getUciHistory() {
+function getFenHistory() {
   const chess = new Chess();
 
   const moves = document.getElementsByClassName("node main-line-ply");
@@ -88,10 +87,7 @@ function getUciHistory() {
     chess.move(moveNotation);
   }
 
-  const history = chess.history({ verbose: true });
-  const uciHistory = history.map((m) => m.from + m.to + (m.promotion || ""));
-
-  return uciHistory;
+  return chess.fen();
 }
 
 function showBestMoves(moves) {
